@@ -1,0 +1,88 @@
+// CONTRAIL Analytics - US Flight Delays 2015 - DAX measures (table: Flights)
+
+Flights = COUNTROWS(Flights)
+    -- format: #,0
+
+Completed Flights = CALCULATE([Flights], Flights[Cancelled] = 0, Flights[Diverted] = 0)
+    -- format: #,0
+
+On-Time Flights = CALCULATE([Flights], Flights[Flight Status] = "On-time")
+    -- format: #,0
+
+Delayed Flights = CALCULATE([Flights], Flights[Flight Status] = "Delayed")
+    -- format: #,0
+
+Cancelled Flights = CALCULATE([Flights], Flights[Cancelled] = 1)
+    -- format: #,0
+
+Diverted Flights = CALCULATE([Flights], Flights[Diverted] = 1)
+    -- format: #,0
+
+Arrivals = CALCULATE([Flights], USERELATIONSHIP(Flights[Destination], Airports[IATA Code]))
+    -- format: #,0
+
+Routes = DISTINCTCOUNT(Flights[Route])
+    -- format: #,0
+
+Airports Served = DISTINCTCOUNT(Flights[Origin])
+    -- format: #,0
+
+On-Time % = DIVIDE([On-Time Flights], [Completed Flights])
+    -- format: 0.0%;-0.0%;0.0%
+
+Delayed % = DIVIDE([Delayed Flights], [Completed Flights])
+    -- format: 0.0%;-0.0%;0.0%
+
+Cancel % = DIVIDE([Cancelled Flights], [Flights])
+    -- format: 0.00%;-0.00%;0.00%
+
+Diverted % = DIVIDE([Diverted Flights], [Flights])
+    -- format: 0.00%;-0.00%;0.00%
+
+Avg Arrival Delay = AVERAGE(Flights[Arrival Delay])
+    -- format: 0.0
+
+Avg Departure Delay = CALCULATE(AVERAGE(Flights[Departure Delay]), Flights[Cancelled] = 0, Flights[Diverted] = 0)
+    -- format: 0.0
+
+Avg Delay When Late = CALCULATE(AVERAGE(Flights[Arrival Delay]), Flights[Flight Status] = "Delayed")
+    -- format: 0.0
+
+Avg Taxi Out = CALCULATE(AVERAGE(Flights[Taxi Out]), Flights[Cancelled] = 0, Flights[Diverted] = 0)
+    -- format: 0.0
+
+Avg Taxi Out Major = IF([Flights] >= 20000, [Avg Taxi Out])
+    -- format: 0.0
+
+Air System Delay Min = SUM(Flights[Air System Delay])
+    -- format: #,0
+
+Security Delay Min = SUM(Flights[Security Delay])
+    -- format: #,0
+
+Airline Delay Min = SUM(Flights[Airline Delay])
+    -- format: #,0
+
+Late Aircraft Delay Min = SUM(Flights[Late Aircraft Delay])
+    -- format: #,0
+
+Weather Delay Min = SUM(Flights[Weather Delay])
+    -- format: #,0
+
+Total Delay Min = [Air System Delay Min] + [Security Delay Min] + [Airline Delay Min] + [Late Aircraft Delay Min] + [Weather Delay Min]
+    -- format: #,0
+
+Delay Min per Flight = DIVIDE([Total Delay Min], [Completed Flights])
+    -- format: 0.0
+
+Late Aircraft Share % = DIVIDE([Late Aircraft Delay Min], [Total Delay Min])
+    -- format: 0.0%;-0.0%;0.0%
+
+Airline Share % = DIVIDE([Airline Delay Min], [Total Delay Min])
+    -- format: 0.0%;-0.0%;0.0%
+
+Weather Cancellations = CALCULATE([Cancelled Flights], Flights[Cancellation Reason] = "Weather")
+    -- format: #,0
+
+Weather Cancel Share % = DIVIDE([Weather Cancellations], [Cancelled Flights])
+    -- format: 0.0%;-0.0%;0.0%
